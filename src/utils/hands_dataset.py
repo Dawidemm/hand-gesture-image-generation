@@ -3,7 +3,7 @@ from torchvision.datasets import ImageFolder
 from torchvision import transforms
 
 
-class HandsDatset(Dataset):
+class HandsDataset(Dataset):
     def __init__(self, root_dir: str, transform=None):
         self.transform = transform
         self.dataset = ImageFolder(root=root_dir)
