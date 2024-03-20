@@ -47,7 +47,7 @@ jobs:
           KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
 
       - name: Unzip dataset
-        run: unzip rock-paper-scissors-dataset.zip
+        run: unzip rock-paper-scissors-dataset.zip -d dataset
         
       - name: Test with flake8
         run: |
