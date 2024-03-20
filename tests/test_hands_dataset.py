@@ -5,7 +5,7 @@ from src.utils.hands_dataset import HandsDataset
 
 @pytest.fixture
 def dataset():
-    return HandsDataset(root_dir='dataset/archive', transform=None)
+    return HandsDataset(root_dir='dataset', transform=None)
 
 def test_hands_dataset_creation(dataset):
     assert dataset is not None
@@ -24,7 +24,7 @@ def test_hands_dataset_transform():
         transforms.ToTensor(),
         transforms.Resize((64, 64))
     ])
-    dataset = HandsDataset(root_dir='dataset/archive', transform=transform)
+    dataset = HandsDataset(root_dir='dataset', transform=transform)
 
     for i in range(len(dataset)):
         image, label = dataset[i]
