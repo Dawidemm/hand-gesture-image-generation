@@ -59,8 +59,8 @@ class HandsClassifier(lightning.LightningModule):
     def test_step(self, batch, batch_idx):
         loss, acc = self._shared_step(batch, batch_idx)
 
-        self.log('train_loss', loss)
-        self.log('train_acc', acc)
+        self.log('test_loss', loss)
+        self.log('test_acc', acc)
 
         return loss, acc
 
