@@ -1,34 +1,20 @@
 import torch
 import lightning as pl
 from lightning.pytorch.callbacks import EarlyStopping
-from torch.utils.data import DataLoader
-from torchvision import transforms
 
 from src.models.classifier import HandsClassifier
-from src.utils.hands_dataset import HandsDataset
+from src.utils.lit_hands_datamodule import LightningHandsDatamodule
 
 
 DATASET_DIR = 'dataset'
 
 def train_classifier():
 
-    transform = transforms.Compose([
-        transforms.Resize((256, 256)),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ])
-    
-    train_dataset = HandsDataset(
-        root_dir=DATASET_DIR,
-        transform=transform
+    datamodule = LightningHandsDatamodule(
+        root_directory=DATASET_DIR,
+        batch_size=16
     )
-
-    train_dataloader = DataLoader(
-        dataset=train_dataset,
-        batch_size=16,
-        shuffle=True
-    )
+    datamodule.setup(stage='train')
 
     trainer = pl.Trainer(
         max_epochs=10, 
@@ -38,8 +24,7 @@ def train_classifier():
 
     model = HandsClassifier()
 
-    trainer.fit(model=model, train_dataloaders=train_dataloader)
-
+    trainer.fit(model=model, datamodule=datamodule)
 
 if __name__ == '__main__':
     train_classifier()
