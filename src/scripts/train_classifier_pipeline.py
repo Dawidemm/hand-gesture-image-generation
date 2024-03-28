@@ -1,6 +1,6 @@
 import torch
 import lightning as pl
-from lightning.pytorch.callbacks import EarlyStopping, ModelCheckpoint
+from lightning.pytorch.callbacks import EarlyStopping
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
@@ -13,10 +13,10 @@ DATASET_DIR = 'dataset'
 def train_classifier():
 
     transform = transforms.Compose([
-        transforms.RandomResizedCrop(256),
+        transforms.Resize((256, 256)),
         transforms.RandomHorizontalFlip(),
         transforms.ToTensor(),
-        # transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     
     train_dataset = HandsDataset(
@@ -36,7 +36,7 @@ def train_classifier():
         logger=False
     )
 
-    model = HandsClassifier(input_size=(3, 256, 256))
+    model = HandsClassifier()
 
     trainer.fit(model=model, train_dataloaders=train_dataloader)
 
