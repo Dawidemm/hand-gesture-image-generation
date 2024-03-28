@@ -16,10 +16,17 @@ def train_classifier():
     )
     datamodule.setup(stage='train')
 
+    early_stopping = EarlyStopping(
+        monitor='val_acc',
+        mode='max',
+        patience=3
+    )
+
     trainer = pl.Trainer(
         max_epochs=10, 
-        accelerator='auto', 
-        logger=False
+        accelerator='auto',
+        callbacks=[early_stopping],
+        logger=True
     )
 
     model = HandsClassifier()
