@@ -2,3 +2,4 @@ dataset
 *.egg-info
 __pycache__
 .DS_Store
+lightning_logs
