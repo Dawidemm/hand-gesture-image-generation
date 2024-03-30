@@ -1,4 +1,5 @@
 import torch.nn as nn
+from typing import Tuple
 
 class GeneratorBlock(nn.Module):
     def __init__(self, in_channels: int, out_channels):
