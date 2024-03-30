@@ -25,10 +25,11 @@ class GeneratorBlock(nn.Module):
 
 
 class HandsGenerator(nn.Module):
-    def __init__(self, img_shape: Tuple[int, int]):
+    def __init__(self, img_shape: Tuple[int, int], latent_dim: int=32):
         super().__init__()
 
         self.img_shape = img_shape
+        self.latent_dim = latent_dim
 
         if self.img_shape[0] == self.img_shape[1]:
             pass
@@ -39,8 +40,8 @@ class HandsGenerator(nn.Module):
         layers = []
 
         initial_layer = nn.ConvTranspose2d(
-            in_channels=1,
-            out_channels=self._calculate_num_conv_layers(),
+            in_channels=self.latent_dim,
+            out_channels=self.latent_dim,
             kernel_size=3,
             stride=1,
             padding=1,
@@ -48,16 +49,16 @@ class HandsGenerator(nn.Module):
         )
         layers.append(initial_layer)
 
-        for _ in range(self._calculate_num_conv_layers()):
+        for i in range(self._calculate_num_conv_layers()):
             layers.append(
                 GeneratorBlock(
-                    in_channels=self._calculate_num_conv_layers(),
-                    out_channels=self._calculate_num_conv_layers()
+                    in_channels=self.latent_dim,
+                    out_channels=self.latent_dim
                 )
             )
 
         output_layer = nn.ConvTranspose2d(
-            in_channels=self._calculate_num_conv_layers(),
+            in_channels=self.latent_dim,
             out_channels=3,
             kernel_size=3,
             stride=1,
