@@ -4,7 +4,7 @@ import numpy as np
 from typing import Tuple
 
 class GeneratorBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels, negative_slope: float=0.02):
+    def __init__(self, in_channels: int, out_channels):
         super().__init__()
 
         subnet = [
@@ -16,7 +16,7 @@ class GeneratorBlock(nn.Module):
                 padding=1,
                 bias=False
             ),
-            nn.LeakyReLU(negative_slope=negative_slope),
+            nn.ReLU(inplace=True),
             nn.BatchNorm2d(out_channels)
         ]
 
