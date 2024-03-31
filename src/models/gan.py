@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import lightning
 from torch.nn.functional import binary_cross_entropy
+import matplotlib.pyplot as plt
 
 from src.models.generator import HandsGenerator
 from src.models.discriminator import HandsDiscriminator
@@ -17,6 +18,8 @@ class HandsGAN(lightning.LightningModule):
     ):
         super().__init__()
 
+        self.automatic_optimization = False
+
         self.latent_dim = latent_dim
         self.generator = generator
         self.discriminator = discriminator
@@ -28,28 +31,68 @@ class HandsGAN(lightning.LightningModule):
     def adversarial_loss(self, y_hat, y):
         return binary_cross_entropy(y_hat, y)
     
-    def training_step(self, batch, batch_idx, optimizer_idx):
-        # Train Discriminator
-        if optimizer_idx == 0:
-            z = torch.randn(batch.size(0), self.latent_dim, device=self.device)
-            fake_images = self.generator(z)
-            real_pred = self.discriminator(batch)
-            fake_pred = self.discriminator(fake_images.detach())
-            real_loss = self.adversarial_loss(real_pred, torch.ones_like(real_pred))
-            fake_loss = self.adversarial_loss(fake_pred, torch.zeros_like(fake_pred))
-            d_loss = (real_loss + fake_loss) / 2
-            return d_loss
+    def training_step(self, batch):
 
-        # Train Generator
-        if optimizer_idx == 1:
-            z = torch.randn(batch.size(0), self.latent_dim, device=self.device)
-            fake_images = self.generator(z)
-            fake_pred = self.discriminator(fake_images)
-            g_loss = self.adversarial_loss(fake_pred, torch.ones_like(fake_pred))
-            return g_loss
-    
+        X, _ = batch
+
+        opt_generator, opt_discriminator = self.optimizers()
+
+        z = torch.randn(X.shape[0], self.latent_dim, 1, 1)
+        z = z.type_as(X)
+
+        self.toggle_optimizer(opt_generator)
+        self.generated_imgs = self(z)
+
+        valid = torch.ones(X.size(0), 1, 4, 4)
+        valid = valid.type_as(X)
+
+        g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
+        self.log("g_loss", g_loss, prog_bar=True)
+        self.manual_backward(g_loss)
+        opt_generator.step()
+        opt_generator.zero_grad()
+        self.untoggle_optimizer(opt_generator)
+
+        self.toggle_optimizer(opt_discriminator)
+
+        valid = torch.ones(X.size(0), 1, 4, 4)
+        valid = valid.type_as(X)
+
+        real_loss = self.adversarial_loss(self.discriminator(X), valid)
+
+        fake = torch.zeros(X.size(0), 1, 4, 4)
+        fake = fake.type_as(X)
+
+        fake_loss = self.adversarial_loss(self.discriminator(self(z).detach()), fake)
+
+        d_loss = (real_loss + fake_loss) / 2
+        self.log("d_loss", d_loss, prog_bar=True)
+        self.manual_backward(d_loss)
+        opt_discriminator.step()
+        opt_discriminator.zero_grad()
+        self.untoggle_optimizer(opt_discriminator)
+
     def configure_optimizers(self):
         opt_generator = torch.optim.Adam(self.generator.parameters(), lr=self.learning_rate)
         opt_discriminator = torch.optim.Adam(self.discriminator.parameters(), lr=self.learning_rate)
 
-        return [opt_generator, opt_discriminator], []
+        return opt_generator, opt_discriminator
+    
+    def on_train_epoch_end(self):
+        
+        gen_img = self.generated_imgs[:8]
+        gen_img = gen_img.to('cpu').detach().numpy()
+        fig, axs = plt.subplots(2, 4, figsize=(12, 6))
+
+        for i in range(2):
+            for j in range(4):
+                idx = i * 4 + j
+                if idx < len(gen_img):
+                    img = gen_img[idx].reshape(256, 256, 3)
+                    axs[i, j].imshow(img)
+                    axs[i, j].axis('off')
+                else:
+                    axs[i, j].axis('off')
+
+        plt.tight_layout()
+        plt.show()
