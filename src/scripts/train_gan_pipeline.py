@@ -10,7 +10,7 @@ from src.utils.lit_hands_datamodule import LightningHandsDatamodule
 
 DATASET_DIR = 'dataset'
 BATCH_SIZE = 16
-MAX_EPOCHS = 10
+MAX_EPOCHS = 250
 
 def train_gan(
         dataset_directory: str,
@@ -24,25 +24,18 @@ def train_gan(
     )
     datamodule.setup(stage='train')
 
-    early_stopping = EarlyStopping(
-        monitor='d_loss',
-        mode='min',
-        patience=3
-    )
-
     trainer = pl.Trainer(
         max_epochs=max_epochs, 
         accelerator='auto',
-        callbacks=[early_stopping],
         logger=True
     )
 
     generator = HandsGenerator(
-        img_shape=(256, 256)
+        img_shape=(128, 128)
     )
     
     discriminator = HandsDiscriminator(
-        img_shape=(256, 256)
+        img_shape=(128, 128)
     )
 
     model = HandsGAN(
