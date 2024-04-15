@@ -1,6 +1,7 @@
 import torch.nn as nn
 from typing import Tuple
 
+
 class GeneratorBlock(nn.Module):
     def __init__(self, in_channels: int, out_channels):
         super().__init__()
@@ -41,7 +42,7 @@ class HandsGenerator(nn.Module):
 
         initial_layer = nn.ConvTranspose2d(
             in_channels=self.latent_dim,
-            out_channels=self.latent_dim,
+            out_channels=2*self.latent_dim,
             kernel_size=3,
             stride=1,
             padding=1,
@@ -52,13 +53,13 @@ class HandsGenerator(nn.Module):
         for i in range(self._calculate_num_conv_layers()):
             layers.append(
                 GeneratorBlock(
-                    in_channels=self.latent_dim,
-                    out_channels=self.latent_dim
+                    in_channels=2*self.latent_dim,
+                    out_channels=2*self.latent_dim
                 )
             )
 
         output_layer = nn.ConvTranspose2d(
-            in_channels=self.latent_dim,
+            in_channels=2*self.latent_dim,
             out_channels=3,
             kernel_size=3,
             stride=1,
@@ -80,3 +81,29 @@ class HandsGenerator(nn.Module):
 
     def forward(self, x):
         return self.generator(x)
+    
+class Generator(nn.Module):
+    def __init__(self, latent_dim, img_shape):
+        super().__init__()
+        self.img_shape = img_shape
+
+        def block(in_feat, out_feat, normalize=True):
+            layers = [nn.Linear(in_feat, out_feat)]
+            if normalize:
+                layers.append(nn.BatchNorm1d(out_feat, 0.8))
+            layers.append(nn.LeakyReLU(0.2, inplace=True))
+            return layers
+
+        self.model = nn.Sequential(
+            *block(latent_dim, 128, normalize=False),
+            *block(128, 256),
+            *block(256, 512),
+            *block(512, 1024),
+            nn.Linear(1024, int(np.prod(img_shape))),
+            nn.Tanh(),
+        )
+
+    def forward(self, z):
+        img = self.model(z)
+        img = img.view(img.size(0), *self.img_shape)
+        return img
