@@ -1,5 +1,4 @@
 import torch
-import torch.nn as nn
 import lightning
 from torch.nn.functional import binary_cross_entropy
 import matplotlib.pyplot as plt
@@ -7,23 +6,35 @@ import matplotlib.pyplot as plt
 from src.models.generator import HandsGenerator
 from src.models.discriminator import HandsDiscriminator
 
+from typing import Tuple
+
 
 class HandsGAN(lightning.LightningModule):
     def __init__(
             self,
+            input_size: Tuple[int, int],
             latent_dim: int,
-            generator: nn.Module,
-            discriminator: nn.Module,
             learning_rate: float=0.0005
     ):
         super().__init__()
 
+        self.save_hyperparameters('input_size', 'latent_dim', 'learning_rate')
+
         self.automatic_optimization = False
 
+        self.input_size = input_size
         self.latent_dim = latent_dim
-        self.generator = generator
-        self.discriminator = discriminator
         self.learning_rate = learning_rate
+
+        self.generator = HandsGenerator(
+            img_shape=self.input_size,
+            latent_dim=self.latent_dim
+        )
+
+        self.discriminator = HandsDiscriminator(
+            img_shape=self.input_size,
+            latent_dim=self.latent_dim
+        )
 
         self.epoch = -1
 
