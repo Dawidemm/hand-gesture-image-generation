@@ -46,7 +46,7 @@ class HandsGenerator(nn.Module):
             out_channels=4*self.latent_dim
         )
         layers.append(initial_block)
-        
+
         self.latent_dim = 4*self.latent_dim
         
         for block in range(self._calculate_num_conv_layers()-2):
@@ -57,7 +57,6 @@ class HandsGenerator(nn.Module):
                 )
             )
             self.latent_dim = int(self.latent_dim/2)
-            print(f'{block}. l_dim: {self.latent_dim}')
 
         output_layer = nn.ConvTranspose2d(
             in_channels=self.latent_dim,
