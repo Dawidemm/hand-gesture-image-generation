@@ -15,7 +15,7 @@ class HandsDataset(Dataset):
 
         if self.transform == None:
             transform = transforms.Compose([
-                transforms.Resize((128, 128)),
+                transforms.Resize((256, 256)),
                 transforms.ToTensor(),
             ])
             image = transform(image)
