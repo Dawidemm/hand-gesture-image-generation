@@ -1,3 +1,4 @@
+import os
 import torch
 import lightning
 from torch.nn.functional import binary_cross_entropy
@@ -101,9 +102,13 @@ class HandsGAN(lightning.LightningModule):
         self.epoch += 1
 
         gen_img = self.generated_imgs[-1]
-        gen_img = gen_img.to('cpu').detach().numpy().reshape(64, 64, 1)
+        gen_img = gen_img.to('cpu').detach().numpy().reshape(self.input_size[0], self.input_size[1], 3)
         plt.imshow(gen_img, cmap='gray')
         plt.axis('off')
         plt.tight_layout()
 
-        plt.savefig(f'gan_imgs/epoch={self.epoch}-g_loss={self.g_loss}-d_loss={self.d_loss}.png')
+        folder_path = 'gan_images'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        plt.savefig(f'{folder_path}/epoch={self.epoch}-g_loss={self.g_loss}-d_loss={self.d_loss}.png')
