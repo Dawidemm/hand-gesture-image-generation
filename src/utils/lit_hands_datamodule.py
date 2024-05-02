@@ -1,9 +1,10 @@
+from lightning import LightningDataModule
 from torch.utils.data import DataLoader
 from torch.utils.data import random_split
-from lightning import LightningDataModule
 from torchvision import transforms
 
 from src.utils.hands_dataset import HandsDataset
+
 
 class LightningHandsDatamodule(LightningDataModule):
     def __init__(
@@ -24,9 +25,10 @@ class LightningHandsDatamodule(LightningDataModule):
 
         if transform == None:
             self.transform = transforms.Compose([
-                transforms.Resize((128, 128)),
+                transforms.Resize((64, 64)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
+                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
             ])
         else:
             self.transform = transform
@@ -44,10 +46,28 @@ class LightningHandsDatamodule(LightningDataModule):
             self.test_dataset = dataset
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
+        return DataLoader(
+            self.train_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=True, 
+            num_workers=self.num_workers, 
+            persistent_workers=True
+        )
     
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
+        return DataLoader(
+            self.val_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=True, 
+            num_workers=self.num_workers,
+            persistent_workers=True
+        )
     
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
+        return DataLoader(
+            self.test_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=False, 
+            num_workers=self.num_workers,
+            persistent_workers=True
+        )
