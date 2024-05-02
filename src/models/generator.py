@@ -42,31 +42,36 @@ class HandsGenerator(nn.Module):
 
         initial_layer = nn.ConvTranspose2d(
             in_channels=self.latent_dim,
-            out_channels=2*self.latent_dim,
-            kernel_size=3,
-            stride=1,
+            out_channels=int(self.latent_dim/2),
+            kernel_size=4,
+            stride=2,
             padding=1,
             bias=False
         )
         layers.append(initial_layer)
 
-        for i in range(self._calculate_num_conv_layers()):
+        self.latent_dim = int(self.latent_dim/2)
+
+        for middle_layers in range(self._calculate_num_conv_layers()-2):
             layers.append(
                 GeneratorBlock(
-                    in_channels=2*self.latent_dim,
-                    out_channels=2*self.latent_dim
+                    in_channels=self.latent_dim,
+                    out_channels=int(self.latent_dim/2)
                 )
             )
+            self.latent_dim = int(self.latent_dim/2)
 
         output_layer = nn.ConvTranspose2d(
-            in_channels=2*self.latent_dim,
+            in_channels=self.latent_dim,
             out_channels=3,
-            kernel_size=3,
-            stride=1,
+            kernel_size=4,
+            stride=2,
             padding=1,
             bias=False
         )
         layers.append(output_layer)
+
+        layers.append(nn.Tanh())
 
         self.generator = nn.Sequential(*layers)
 
