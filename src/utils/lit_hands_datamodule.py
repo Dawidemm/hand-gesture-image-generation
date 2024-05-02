@@ -10,7 +10,8 @@ class LightningHandsDatamodule(LightningDataModule):
             self, 
             root_directory: str, 
             batch_size: int,
-            split: float = 0.2,
+            split: float=0.2,
+            num_workers: int=4,
             transform=None
     ):
         
@@ -19,6 +20,7 @@ class LightningHandsDatamodule(LightningDataModule):
         self.root_directory = root_directory
         self.split = split
         self.batch_size = batch_size
+        self.num_workers = num_workers
 
         if transform == None:
             self.transform = transforms.Compose([
@@ -42,10 +44,10 @@ class LightningHandsDatamodule(LightningDataModule):
             self.test_dataset = dataset
 
     def train_dataloader(self) -> DataLoader:
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
     
     def val_dataloader(self) -> DataLoader:
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=True)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers)
     
     def test_dataloader(self) -> DataLoader:
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers)
