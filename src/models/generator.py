@@ -15,8 +15,8 @@ class GeneratorBlock(nn.Module):
                 padding=1,
                 bias=False
             ),
-            nn.ReLU(inplace=True),
-            nn.BatchNorm2d(out_channels)
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
         ]
 
         self.subnet = nn.Sequential(*subnet)
@@ -31,6 +31,7 @@ class HandsGenerator(nn.Module):
 
         self.img_shape = img_shape
         self.latent_dim = latent_dim
+        channels = self.latent_dim
 
         if self.img_shape[0] == self.img_shape[1]:
             pass
@@ -40,19 +41,15 @@ class HandsGenerator(nn.Module):
         
         layers = []
 
-        initial_layer = nn.ConvTranspose2d(
+        initial_block = GeneratorBlock(
             in_channels=self.latent_dim,
-            out_channels=int(self.latent_dim/2),
-            kernel_size=4,
-            stride=2,
-            padding=1,
-            bias=False
+            out_channels=4*self.latent_dim
         )
-        layers.append(initial_layer)
-
-        self.latent_dim = int(self.latent_dim/2)
-
-        for middle_layers in range(self._calculate_num_conv_layers()-2):
+        layers.append(initial_block)
+        
+        self.latent_dim = 4*self.latent_dim
+        
+        for block in range(self._calculate_num_conv_layers()-2):
             layers.append(
                 GeneratorBlock(
                     in_channels=self.latent_dim,
@@ -60,6 +57,7 @@ class HandsGenerator(nn.Module):
                 )
             )
             self.latent_dim = int(self.latent_dim/2)
+            print(f'{block}. l_dim: {self.latent_dim}')
 
         output_layer = nn.ConvTranspose2d(
             in_channels=self.latent_dim,
