@@ -76,30 +76,23 @@ class HandsGAN(lightning.LightningModule):
 
         self.g_loss = g_loss
         self.d_loss = d_loss
+        self.g_loss = round(self.g_loss.item(), 4)
+        self.d_loss = round(self.d_loss.item(), 4)
 
     def configure_optimizers(self):
-        opt_generator = torch.optim.Adam(self.generator.parameters(), lr=self.learning_rate)
-        opt_discriminator = torch.optim.Adam(self.discriminator.parameters(), lr=self.learning_rate)
+        opt_generator = torch.optim.Adam(self.generator.parameters(), lr=self.learning_rate, betas=(0.5, 0.999))
+        opt_discriminator = torch.optim.Adam(self.discriminator.parameters(), lr=self.learning_rate, betas=(0.5, 0.999))
 
         return opt_generator, opt_discriminator
     
     def on_train_epoch_end(self):
         
-        gen_img = self.generated_imgs[:4]
-        gen_img = gen_img.to('cpu').detach().numpy()
-        fig, axs = plt.subplots(2, 2, figsize=(6, 5))
-
-        for i in range(2):
-            for j in range(2):
-                idx = i * 2 + j
-                if idx < len(gen_img):
-                    img = gen_img[idx].reshape(128, 128, 3)
-                    axs[i, j].imshow(img)
-                    axs[i, j].axis('off')
-                else:
-                    axs[i, j].axis('off')
-
         self.epoch += 1
 
+        gen_img = self.generated_imgs[-1]
+        gen_img = gen_img.to('cpu').detach().numpy().reshape(64, 64, 1)
+        plt.imshow(gen_img, cmap='gray')
+        plt.axis('off')
         plt.tight_layout()
+
         plt.savefig(f'gan_imgs/epoch={self.epoch}-g_loss={self.g_loss}-d_loss={self.d_loss}.png')
