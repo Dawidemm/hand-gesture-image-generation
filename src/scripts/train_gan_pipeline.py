@@ -1,47 +1,42 @@
-import torch
-import lightning as pl
-from lightning.pytorch.callbacks import EarlyStopping
+import lightning
 
-from src.models.generator import HandsGenerator
-from src.models.discriminator import HandsDiscriminator
-from src.models.gan import HandsGAN
 from src.utils.lit_hands_datamodule import LightningHandsDatamodule
+from src.models.gan import HandsGAN
+
+from typing import Tuple
 
 
 DATASET_DIR = 'dataset'
-BATCH_SIZE = 16
+BATCH_SIZE = 32
 MAX_EPOCHS = 250
+
+IMG_SIZE = (64, 64)
+LATNET_DIM = 128
+
 
 def train_gan(
         dataset_directory: str,
         batch_size: int,
-        max_epochs: int
+        max_epochs: int,
+        img_size: Tuple[int, int],
+        latent_dim: int
     ):
 
     datamodule = LightningHandsDatamodule(
         root_directory=dataset_directory,
         batch_size=batch_size
     )
-    datamodule.setup(stage='train')
+    datamodule.setup(stage='fit')
 
-    trainer = pl.Trainer(
+    trainer = lightning.Trainer(
         max_epochs=max_epochs, 
         accelerator='auto',
         logger=True
     )
 
-    generator = HandsGenerator(
-        img_shape=(128, 128)
-    )
-    
-    discriminator = HandsDiscriminator(
-        img_shape=(128, 128)
-    )
-
     model = HandsGAN(
-        latent_dim=32,
-        generator=generator,
-        discriminator=discriminator
+        input_size=img_size,
+        latent_dim=latent_dim,
     )
 
     trainer.fit(model=model, datamodule=datamodule)
@@ -50,5 +45,7 @@ if __name__ == '__main__':
     train_gan(
         dataset_directory=DATASET_DIR,
         batch_size=BATCH_SIZE,
-        max_epochs=MAX_EPOCHS
+        max_epochs=MAX_EPOCHS,
+        img_size=IMG_SIZE,
+        latent_dim=LATNET_DIM
     )
