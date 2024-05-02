@@ -1,6 +1,7 @@
 import torch.nn as nn
 from typing import Tuple
 
+
 class DiscriminatorBlock(nn.Module):
     def __init__(self, in_channels: int, out_channels: int, negative_slope: float=0.1):
         super().__init__()
@@ -34,26 +35,27 @@ class HandsDiscriminator(nn.Module):
 
         self.img_shape = img_shape
         self.latent_dim = latent_dim
+        channels = self.latent_dim
 
         layers = []
 
         initial_layer = DiscriminatorBlock(
-            in_channels=1,
-            out_channels=self.latent_dim
+            in_channels=3,
+            out_channels=channels
         )
         layers.append(initial_layer)
 
         for middle_layers in range(self._calculate_num_conv_layers()-2):
             layers.append(
                 DiscriminatorBlock(
-                    in_channels=self.latent_dim,
-                    out_channels=int(self.latent_dim*2)
+                    in_channels=channels,
+                    out_channels=channels+self.latent_dim
                 )
             )
-            self.latent_dim = int(self.latent_dim*2)
+            channels += self.latent_dim
 
         output_layer = DiscriminatorBlock(
-            in_channels=self.latent_dim,
+            in_channels=channels,
             out_channels=1,
         )
         layers.append(output_layer)
