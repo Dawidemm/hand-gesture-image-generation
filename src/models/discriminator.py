@@ -3,7 +3,7 @@ from typing import Tuple
 
 
 class DiscriminatorBlock(nn.Module):
-    def __init__(self, in_channels: int, out_channels: int, negative_slope: float=0.1):
+    def __init__(self, in_channels: int, out_channels: int, negative_slope: float=0.2):
         super().__init__()
 
         subnet = [
@@ -15,8 +15,8 @@ class DiscriminatorBlock(nn.Module):
                 padding=1,
                 bias=False
             ),
-            nn.LeakyReLU(negative_slope=negative_slope, inplace=True),
-            nn.BatchNorm2d(num_features=out_channels)
+            nn.BatchNorm2d(num_features=out_channels),
+            nn.LeakyReLU(negative_slope=negative_slope, inplace=True)
         ]
 
         self.subnet = nn.Sequential(*subnet)
