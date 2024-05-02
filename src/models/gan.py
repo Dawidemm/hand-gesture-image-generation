@@ -15,7 +15,7 @@ class HandsGAN(lightning.LightningModule):
             self,
             input_size: Tuple[int, int],
             latent_dim: int,
-            learning_rate: float=0.0005
+            learning_rate: float=0.0002
     ):
         super().__init__()
 
