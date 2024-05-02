@@ -25,38 +25,36 @@ class DiscriminatorBlock(nn.Module):
 
 
 class HandsDiscriminator(nn.Module):
-    def __init__(self, img_shape: Tuple[int, int]):
+    def __init__(
+            self,
+            img_shape: Tuple[int, int],
+            latent_dim: int
+    ):
         super().__init__()
 
         self.img_shape = img_shape
+        self.latent_dim = latent_dim
 
         layers = []
 
-        initial_layer = nn.Conv2d(
-            in_channels=3,
-            out_channels=16,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            bias=False
+        initial_layer = DiscriminatorBlock(
+            in_channels=1,
+            out_channels=self.latent_dim
         )
         layers.append(initial_layer)
 
-        for i in range(self._calculate_num_conv_layers()):
+        for middle_layers in range(self._calculate_num_conv_layers()-2):
             layers.append(
                 DiscriminatorBlock(
-                    in_channels=16,
-                    out_channels=16
+                    in_channels=self.latent_dim,
+                    out_channels=int(self.latent_dim*2)
                 )
             )
+            self.latent_dim = int(self.latent_dim*2)
 
-        output_layer = nn.Conv2d(
-            in_channels=16,
+        output_layer = DiscriminatorBlock(
+            in_channels=self.latent_dim,
             out_channels=1,
-            kernel_size=3,
-            stride=1,
-            padding=1,
-            bias=False
         )
         layers.append(output_layer)
 
