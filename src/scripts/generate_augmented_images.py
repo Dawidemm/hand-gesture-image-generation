@@ -2,7 +2,7 @@ from src.utils.hands_augmentation import HandsAugmentation
 
 ROOT_DIR= 'dataset'
 LABELS = {0: 'paper', 1: 'rock', 2: 'scissors'}
-MULTIPLY_SCALER = 4
+MULTIPLY_SCALER = 5
 
 def main():
 
