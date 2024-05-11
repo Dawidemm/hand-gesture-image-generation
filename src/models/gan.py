@@ -45,8 +45,8 @@ class HandsGAN(lightning.LightningModule):
     def adversarial_loss(self, y_hat, y):
         return binary_cross_entropy(y_hat, y)
     
-    def training_step(self, batch):
-
+    def training_step(self, batch, batch_idx):
+        
         X, _ = batch
 
         opt_generator, opt_discriminator = self.optimizers()
@@ -54,42 +54,36 @@ class HandsGAN(lightning.LightningModule):
         z = torch.randn(X.shape[0], self.latent_dim, 1, 1)
         z = z.type_as(X)
 
-        self.toggle_optimizer(opt_generator)
-        self.generated_imgs = self(z)
+        self.generated_images = self(z)
 
-        valid = torch.ones(X.size(0), 1, 4, 4)
-        valid = valid.type_as(X)
+        real_image = torch.ones(X.size(0), 1, 4, 4)
+        real_image = real_image.type_as(X)
 
-        g_loss = self.adversarial_loss(self.discriminator(self(z)), valid)
-        self.log("g_loss", g_loss, prog_bar=True)
-        self.manual_backward(g_loss)
-        opt_generator.step()
+        generator_loss = self.adversarial_loss(self.discriminator(self.generated_images), real_image)
+        self.log("g_loss", generator_loss, prog_bar=True)
+
         opt_generator.zero_grad()
-        self.untoggle_optimizer(opt_generator)
+        self.manual_backward(generator_loss)
+        opt_generator.step()
 
-        self.toggle_optimizer(opt_discriminator)
+        real_loss = self.adversarial_loss(self.discriminator(X), real_image)
 
-        valid = torch.ones(X.size(0), 1, 4, 4)
-        valid = valid.type_as(X)
+        fake_image = torch.zeros(X.size(0), 1, 4, 4)
+        fake_image = fake_image.type_as(X)
 
-        real_loss = self.adversarial_loss(self.discriminator(X), valid)
+        fake_loss = self.adversarial_loss(self.discriminator(self.generated_images.detach()), fake_image)
 
-        fake = torch.zeros(X.size(0), 1, 4, 4)
-        fake = fake.type_as(X)
+        discriminator_loss = real_loss + fake_loss
+        self.log("d_loss", discriminator_loss, prog_bar=True)
 
-        fake_loss = self.adversarial_loss(self.discriminator(self(z).detach()), fake)
-
-        d_loss = (real_loss + fake_loss) / 2
-        self.log("d_loss", d_loss, prog_bar=True)
-        self.manual_backward(d_loss)
-        opt_discriminator.step()
         opt_discriminator.zero_grad()
-        self.untoggle_optimizer(opt_discriminator)
+        self.manual_backward(discriminator_loss)
+        opt_discriminator.step()
 
-        self.g_loss = g_loss
-        self.d_loss = d_loss
-        self.g_loss = round(self.g_loss.item(), 4)
-        self.d_loss = round(self.d_loss.item(), 4)
+        self.generator_loss = generator_loss
+        self.discriminator_loss = discriminator_loss
+        self.generator_loss = round(self.generator_loss.item(), 4)
+        self.discriminator_loss = round(self.discriminator_loss.item(), 4)
 
     def configure_optimizers(self):
         opt_generator = torch.optim.Adam(self.generator.parameters(), lr=self.learning_rate, betas=(0.5, 0.999))
@@ -101,14 +95,16 @@ class HandsGAN(lightning.LightningModule):
         
         self.epoch += 1
 
-        gen_img = self.generated_imgs[-1]
-        gen_img = gen_img.to('cpu').detach().numpy().reshape(self.input_size[0], self.input_size[1], 3)
-        plt.imshow(gen_img, cmap='gray')
-        plt.axis('off')
-        plt.tight_layout()
+        if self.epoch % 100 == 0:
 
-        folder_path = 'gan_images'
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path)
+            gen_img = self.generated_images[-1]
+            gen_img = gen_img.to('cpu').detach().numpy().reshape(self.input_size[0], self.input_size[1], 3)
+            plt.imshow(gen_img, cmap='gray')
+            plt.axis('off')
+            plt.tight_layout()
 
-        plt.savefig(f'{folder_path}/epoch={self.epoch}-g_loss={self.g_loss}-d_loss={self.d_loss}.png')
+            folder_path = 'gan_images'
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
+
+            plt.savefig(f'{folder_path}/epoch={self.epoch}-g_loss={self.generator_loss}-d_loss={self.discriminator_loss}.png')
