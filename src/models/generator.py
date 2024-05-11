@@ -26,7 +26,11 @@ class GeneratorBlock(nn.Module):
 
 
 class HandsGenerator(nn.Module):
-    def __init__(self, img_shape: Tuple[int, int], latent_dim: int=32):
+    def __init__(
+            self, 
+            img_shape: Tuple[int, int], 
+            latent_dim: int
+    ):
         super().__init__()
 
         self.img_shape = img_shape
