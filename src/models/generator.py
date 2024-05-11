@@ -35,7 +35,6 @@ class HandsGenerator(nn.Module):
 
         self.img_shape = img_shape
         self.latent_dim = latent_dim
-        channels = self.latent_dim
 
         if self.img_shape[0] == self.img_shape[1]:
             pass
