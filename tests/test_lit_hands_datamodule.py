@@ -19,7 +19,7 @@ def test_lightning_hands_data_module_setup_fit(hands_data_module):
     assert len(hands_data_module.val_dataset) > 0
 
 def test_lightning_hands_data_module_setup_test(hands_data_module):
-    hands_data_module.setup(stage='test')
+    hands_data_module.setup(stage='train')
     assert len(hands_data_module.test_dataset) > 0
 
 def test_lightning_hands_data_module_train_dataloader(hands_data_module):
@@ -35,7 +35,7 @@ def test_lightning_hands_data_module_val_dataloader(hands_data_module):
     assert len(val_dataloader.dataset) > 0
 
 def test_lightning_hands_data_module_test_dataloader(hands_data_module):
-    hands_data_module.setup(stage='test')
+    hands_data_module.setup(stage='train')
     test_dataloader = hands_data_module.test_dataloader()
     assert test_dataloader.batch_size == 32
     assert len(test_dataloader.dataset) > 0
