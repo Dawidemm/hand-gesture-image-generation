@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 
 from src.models.generator import HandsGenerator
 from src.models.discriminator import HandsDiscriminator
+from src.models.weights_initializer import weights_init
 
 from typing import Tuple
 
@@ -37,6 +38,9 @@ class HandsGAN(lightning.LightningModule):
             latent_dim=self.latent_dim
         )
 
+        self.generator.apply(weights_init)
+        self.discriminator.apply(weights_init)
+
         self.epoch = -1
 
     def forward(self, z):
@@ -56,7 +60,7 @@ class HandsGAN(lightning.LightningModule):
 
         self.generated_images = self(z)
 
-        real_image = torch.ones(X.size(0), 1, 4, 4)
+        real_image = torch.ones(X.size(0), 1, 1, 1)
         real_image = real_image.type_as(X)
 
         generator_loss = self.adversarial_loss(self.discriminator(self.generated_images), real_image)
@@ -68,7 +72,7 @@ class HandsGAN(lightning.LightningModule):
 
         real_loss = self.adversarial_loss(self.discriminator(X), real_image)
 
-        fake_image = torch.zeros(X.size(0), 1, 4, 4)
+        fake_image = torch.zeros(X.size(0), 1, 1, 1)
         fake_image = fake_image.type_as(X)
 
         fake_loss = self.adversarial_loss(self.discriminator(self.generated_images.detach()), fake_image)
@@ -95,16 +99,14 @@ class HandsGAN(lightning.LightningModule):
         
         self.epoch += 1
 
-        if self.epoch % 100 == 0:
+        gen_img = self.generated_images[0]
+        gen_img = gen_img.to('cpu').detach().numpy().reshape(self.input_size[0], self.input_size[1], 3)
+        plt.imshow(gen_img, cmap='gray')
+        plt.axis('off')
+        plt.tight_layout()
 
-            gen_img = self.generated_images[-1]
-            gen_img = gen_img.to('cpu').detach().numpy().reshape(self.input_size[0], self.input_size[1], 3)
-            plt.imshow(gen_img, cmap='gray')
-            plt.axis('off')
-            plt.tight_layout()
-
-            folder_path = 'gan_images'
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
-
-            plt.savefig(f'{folder_path}/epoch={self.epoch}-g_loss={self.generator_loss}-d_loss={self.discriminator_loss}.png')
+        folder_path = 'gan_images'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+            
+        plt.savefig(f'{folder_path}/epoch={self.epoch}-g_loss={self.generator_loss}-d_loss={self.discriminator_loss}.png')
