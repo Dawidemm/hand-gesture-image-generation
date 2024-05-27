@@ -3,15 +3,17 @@ import lightning
 from src.utils.lit_hands_datamodule import LightningHandsDatamodule
 from src.models.gan import HandsGAN
 
+from src.utils import utils
+
 from typing import Tuple
 
 
 DATASET_DIR = 'dataset'
-BATCH_SIZE = 128
-MAX_EPOCHS = 50
+BATCH_SIZE = 64
+MAX_EPOCHS = 25
 
 IMG_SIZE = (128, 128)
-LATNET_DIM = 128
+LATNET_DIM = 64
 
 
 def train_gan(
@@ -28,10 +30,13 @@ def train_gan(
     )
     datamodule.setup(stage='fit')
 
+    loss_logs = utils.LossLoggerCallback()
+
     trainer = lightning.Trainer(
         max_epochs=max_epochs, 
         accelerator='auto',
-        logger=True
+        logger=True,
+        callbacks=[loss_logs]
     )
 
     model = HandsGAN(
@@ -40,6 +45,14 @@ def train_gan(
     )
 
     trainer.fit(model=model, datamodule=datamodule)
+
+    utils.plot_gan_loss(
+        epochs=max_epochs,
+        g_loss=loss_logs.generator_losses,
+        d_loss=loss_logs.discriminator_losses,
+        save_dir='.',
+        format='png'
+    )
 
 if __name__ == '__main__':
     train_gan(
