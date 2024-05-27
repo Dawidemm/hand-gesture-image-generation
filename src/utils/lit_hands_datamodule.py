@@ -25,7 +25,7 @@ class LightningHandsDatamodule(LightningDataModule):
 
         if transform == None:
             self.transform = transforms.Compose([
-                transforms.Resize((128, 128)),
+                transforms.Resize((64, 64)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
@@ -41,7 +41,7 @@ class LightningHandsDatamodule(LightningDataModule):
             val_dataset_samples = len(dataset) - train_dataset_samples
             self.train_dataset, self.val_dataset = random_split(dataset, [train_dataset_samples, val_dataset_samples])
 
-        if stage == 'test':
+        if stage == 'train':
             dataset = HandsDataset(root_dir=self.root_directory)
             self.test_dataset = dataset
 
