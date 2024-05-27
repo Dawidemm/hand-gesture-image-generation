@@ -45,7 +45,7 @@ class HandsDiscriminator(nn.Module):
         )
         layers.append(initial_layer)
 
-        for middle_layers in range(self._calculate_num_conv_layers()-2):
+        for middle_layers in range(self._calculate_num_conv_layers()):
             layers.append(
                 DiscriminatorBlock(
                     in_channels=channels,
@@ -54,10 +54,14 @@ class HandsDiscriminator(nn.Module):
             )
             channels += self.latent_dim
 
-        output_layer = DiscriminatorBlock(
-            in_channels=channels,
-            out_channels=1,
-        )
+        output_layer = nn.Conv2d(
+                in_channels=channels,
+                out_channels=1,
+                kernel_size=4,
+                stride=2,
+                padding=1,
+                bias=False
+            )
         layers.append(output_layer)
 
         layers.append(nn.Sigmoid())
