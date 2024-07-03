@@ -100,8 +100,8 @@ class HandsGAN(lightning.LightningModule):
         self.epoch += 1
 
         gen_img = self.generated_images[0]
-        gen_img = gen_img.to('cpu').detach().numpy().reshape(self.input_size[0], self.input_size[1], 3)
-        plt.imshow(gen_img, cmap='gray')
+        gen_img = gen_img.to('cpu').detach().numpy().transpose(1, 2, 0)
+        plt.imshow(gen_img)
         plt.axis('off')
         plt.tight_layout()
 
