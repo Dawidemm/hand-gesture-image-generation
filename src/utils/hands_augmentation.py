@@ -20,8 +20,8 @@ class HandsAugmentation():
     def gen_augmented_images(self):
 
         transform = transforms.Compose([
-            transforms.Resize((128, 128)),
-            transforms.RandomRotation(degrees=(-15, 15)),
+            transforms.RandomRotation(degrees=(-10, 10)),
+            transforms.CenterCrop((200, 200)),
             transforms.RandomHorizontalFlip()
         ])
 
