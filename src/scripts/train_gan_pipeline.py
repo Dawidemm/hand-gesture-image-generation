@@ -9,8 +9,8 @@ from typing import Tuple
 
 
 DATASET_DIR = 'dataset'
-BATCH_SIZE = 64
-MAX_EPOCHS = 25
+BATCH_SIZE = 8
+MAX_EPOCHS = 50
 
 IMG_SIZE = (128, 128)
 LATNET_DIM = 64
