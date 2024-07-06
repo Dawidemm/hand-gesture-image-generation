@@ -25,10 +25,9 @@ class LightningHandsDatamodule(LightningDataModule):
 
         if transform == None:
             self.transform = transforms.Compose([
-                transforms.Resize((128, 128)),
+                transforms.Resize((256, 256)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
-                transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
             ])
         else:
             self.transform = transform

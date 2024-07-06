@@ -8,7 +8,7 @@ hands_gan = HandsGAN.load_from_checkpoint(
     map_location='cpu'
 )
 
-latent_vector = torch.randn(8, 64, 1, 1)
+latent_vector = torch.randn(8, 128, 1, 1)
 images = hands_gan(latent_vector)
 
 

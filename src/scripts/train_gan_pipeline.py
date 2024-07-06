@@ -12,8 +12,8 @@ DATASET_DIR = 'dataset'
 BATCH_SIZE = 8
 MAX_EPOCHS = 50
 
-IMG_SIZE = (128, 128)
-LATNET_DIM = 64
+IMG_SIZE = (256, 256)
+LATNET_DIM = 128
 
 
 def train_gan(
