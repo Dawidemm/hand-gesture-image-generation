@@ -31,9 +31,9 @@ This project is part of the coursework for the Computational Intelligence course
     ```
 ### Open in Lightning Studio
 
-<a target="_blank" href="https://lightning.ai/new?repo_url=https%3A%2F%2Fgithub. com%2FDawidemm%2Fhand-gesture-image-generation" align="center">
+<p target="_blank" href="https://lightning.ai/new?repo_url=https%3A%2F%2Fgithub. com%2FDawidemm%2Fhand-gesture-image-generation" align="center">
   <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/studio-badge.svg" alt="Open in Studio" />
-</a>
+</p>
 
 Click the badge above to open this project in Lightning Studio. Please note that the studio instance opened using this link will not include the dataset. Users interested in training their own networks will need to upload their dataset.
 
