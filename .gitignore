@@ -3,3 +3,7 @@ dataset
 __pycache__
 .DS_Store
 lightning_logs
+gan_images
+dcgan.ipynb
+mnist
+gen.py
