@@ -31,7 +31,7 @@ This project is part of the coursework for the Computational Intelligence course
     ```
 ### Open in Lightning Studio
 
-<a target="_blank" href="https://lightning.ai/new?repo_url=https%3A%2F%2Fgithub.com%2FDawidemm%2Fhand-gesture-image-generation">
+<a target="_blank" href="https://lightning.ai/new?repo_url=https%3A%2F%2Fgithub. com%2FDawidemm%2Fhand-gesture-image-generation" align="center">
   <img src="https://pl-bolts-doc-images.s3.us-east-2.amazonaws.com/app-2/studio-badge.svg" alt="Open in Studio" />
 </a>
 
